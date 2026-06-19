@@ -40,6 +40,8 @@ def run(*args: str, capture: bool = False) -> str:
 def is_macho(path: Path) -> bool:
     if not path.is_file():
         return False
+    if any(part.endswith(".dSYM") for part in path.parts):
+        return False
     try:
         with path.open("rb") as handle:
             return handle.read(4) in MACHO_MAGICS

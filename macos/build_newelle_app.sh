@@ -52,6 +52,8 @@ MACHO_MAGICS = {
 
 root = Path(sys.argv[1])
 for path in sorted(p for p in root.rglob("*") if p.is_file()):
+    if any(part.endswith(".dSYM") for part in path.parts):
+        continue
     try:
         with path.open("rb") as handle:
             if handle.read(4) in MACHO_MAGICS:
@@ -103,9 +105,19 @@ ln -sfn "Versions/Current/Python" "$FRAMEWORKS_DIR/Python.framework/Python"
 ln -sfn "Versions/Current/Resources" "$FRAMEWORKS_DIR/Python.framework/Resources"
 
 mkdir -p "$PYTHON_DEST_SITE_PACKAGES"
-rsync -aL --exclude '__pycache__' --exclude '*.pyc' "$BREW_SITE_PACKAGES/" "$PYTHON_DEST_SITE_PACKAGES/"
+rsync -aL \
+  --exclude '__pycache__' \
+  --exclude '*.pyc' \
+  --exclude '*.dSYM' \
+  --exclude 'PyObjCTest' \
+  "$BREW_SITE_PACKAGES/" "$PYTHON_DEST_SITE_PACKAGES/"
 if [[ -d "$VENV_SITE_PACKAGES" ]]; then
-  rsync -aL --exclude '__pycache__' --exclude '*.pyc' "$VENV_SITE_PACKAGES/" "$PYTHON_DEST_SITE_PACKAGES/"
+  rsync -aL \
+    --exclude '__pycache__' \
+    --exclude '*.pyc' \
+    --exclude '*.dSYM' \
+    --exclude 'PyObjCTest' \
+    "$VENV_SITE_PACKAGES/" "$PYTHON_DEST_SITE_PACKAGES/"
 fi
 
 rsync -aL "$BREW_PREFIX/share/glib-2.0/schemas/" "$SHARE_DIR/glib-2.0/schemas/"
@@ -204,6 +216,7 @@ PLIST
 /usr/bin/clang -O2 -g0 -Wall -Wextra -Wl,-headerpad_max_install_names -o "$MACOS_DIR/Newelle" "$LAUNCHER_SRC" \
   "${PYTHON_EMBED_CFLAGS[@]}" \
   "${PYTHON_EMBED_LDFLAGS[@]}"
+rm -rf "$MACOS_DIR/Newelle.dSYM"
 
 "$BREW_PYTHON_BIN" "$ROOT/macos/package_runtime.py" "$APP_DIR" "$BREW_PREFIX" "$PYTHON_VERSION"
 
