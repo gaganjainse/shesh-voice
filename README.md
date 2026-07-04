@@ -45,9 +45,10 @@ https://github.com/user-attachments/assets/909edf0e-5a79-40c2-a3ef-cb5b2b18abfc
 - 📞 **Call Mode**: Chat in real time with AI models
 - 🧠 **Long Term Memory**: Remember conversations from previous chats
 - 💼 **Chat with documents**: Chat with your own documents
+- 🖼 **Image Generation**: Generate images directly in Newelle with stablediffusion or use third party services
 - 🔎 **Web Search**: Provide reliable answers using Web Search
-- 🌐 **Website Reading**: Scrap informations from websites by appending the prefix #https://.. in the prompt
-- 🖍 **Dynamic Context Management**: Dinamically summarize and remove messages non relevant messages to fit in the context
+- 🌐 **Website Reading**: Scrape informations from websites by appending the prefix #https://.. in the prompt
+- 🖍 **Dynamic Context Management**: Dynamically summarize and remove non relevant messages to fit in the context
 - 🔓 **File Permissions**: Set permissions to which files to edit/read
 - ⏰ **Scheduled Tasks**: Schedule tasks to run in the background
 - 👤 **Profile Manager**: Create settings profiles and switch between them
