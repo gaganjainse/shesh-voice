@@ -1,0 +1,9 @@
+--- a/src/constants.py
++++ b/src/constants.py
+@@ -21,7 +21,7 @@
+ DIR_NAME = "Newelle"
+ SCHEMA_ID = 'io.github.qwersyk.Newelle'
+ 
+-PROGRAM_NAME = "Newelle"
++PROGRAM_NAME = "Shesha"
+ PROGRAM_ICON = "io.github.qwersyk.Newelle"
