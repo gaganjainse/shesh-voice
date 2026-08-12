@@ -230,3 +230,8 @@ or adjust the permissions permanently using [Flatseal](https://flathub.org/apps/
   <source srcset="https://raw.githubusercontent.com/NyarchLinux/NyarchAssistant/refs/heads/master/screenshots/1b.png" media="(prefers-color-scheme: dark)">
   <img src="https://raw.githubusercontent.com/NyarchLinux/NyarchAssistant/refs/heads/master/screenshots/1w.png" alt="screenshot">
 </picture>
+
+## Security
+
+Security posture and vulnerability reporting: [canonical ecosystem security
+policy](https://github.com/gaganjainse/shesh-ecosystem/blob/main/SECURITY.md).
