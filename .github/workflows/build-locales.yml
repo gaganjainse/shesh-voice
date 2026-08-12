@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
@@ -21,12 +21,12 @@ jobs:
             find src -type f -name "*.py" -exec grep -lE '_\(|N\(_' {} \;
             find data -type f \( -name "*.xml" -o -name "*.in" \)
           ) >po/POTFILES
-          xgettext -o po/newelle.pot $(cat po/POTFILES)
+          xgettext -o po/newelle.pot --files-from=po/POTFILES
           cd po
-          for file in $(ls *.po); do
+          for file in ./*.po; do
               msgmerge -U "$file" newelle.pot
           done
-          rm -f *~
+          rm -f -- *~
           cd ..
 
       - name: Commit changes
@@ -36,5 +36,5 @@ jobs:
             git config --local user.email "github-actions[bot]@users.noreply.github.com"
             git add .
             git commit -m "Automated changes by github actions"
-            git push origin ${GITHUB_REF##*/}
+            git push origin "${GITHUB_REF##*/}"
           fi
