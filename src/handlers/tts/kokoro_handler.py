@@ -141,7 +141,9 @@ class KokoroTTSHandler(TTSHandler):
             try:
                 if os.path.exists(tmp):
                     os.remove(tmp)
-            except Exception:
+            except OSError:
+                # Partial download left behind; it is retried on next use,
+                # and the real download error is thrown right after.
                 pass
             self.throw(f"Failed to download Kokoro asset: {e}", ErrorSeverity.ERROR)
 

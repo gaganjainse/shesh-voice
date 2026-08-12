@@ -21,7 +21,8 @@ class OpenAIImageHandler(ImageGeneratorHandler):
         if self.get_setting("models", False) is not None:
             try:
                 self.models = json.loads(self.get_setting("models", False))
-            except Exception:
+            except (json.JSONDecodeError, TypeError):
+                # Corrupt "models" setting — keep the built-in default list.
                 pass
         else:
             threading.Thread(target=self._fetch_models, daemon=True).start()

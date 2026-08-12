@@ -72,6 +72,8 @@ class ChatInterface(Interface):
                         num = int(name.split()[-1])
                         count = max(count, num)
                     except (ValueError, IndexError):
+                        # Chat name carries no trailing number — it simply
+                        # does not raise the auto-counter.
                         pass
         self._chat_counter = count
         return count

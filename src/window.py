@@ -968,6 +968,7 @@ class MainWindow(Adw.ApplicationWindow):
                 if model_setting:
                     label = label + " - " + model_setting
             except (json.JSONDecodeError, TypeError):
+                # LLM settings blob malformed — the label just shows no model.
                 pass
         self.model_menu_button.set_child(
             Gtk.Label(label=label, ellipsize=Pango.EllipsizeMode.MIDDLE)
@@ -1827,6 +1828,7 @@ class MainWindow(Adw.ApplicationWindow):
         try:
             button.disconnect_by_func(self.stop_recording)
         except TypeError:
+            # Handler not currently connected — disconnect is a no-op goal.
             pass
         # Reconnect to the active chat tab's start_recording method
         tab = self.get_active_chat_tab()
@@ -2357,6 +2359,7 @@ class MainWindow(Adw.ApplicationWindow):
                 self.controller.remove_chat_from_folder(chat_id)
                 return True
             except (ValueError, TypeError):
+                # Drop payload was not a chat id — not an unfolder drop.
                 pass
         return False
 
@@ -2839,7 +2842,10 @@ class MainWindow(Adw.ApplicationWindow):
                         outputs.append((True, "Done"))
                     outputs.append((True, stdout.decode()))
             except Exception as e:
-                pass
+                # The command crashed outside the shell protocol: report the
+                # exception as a failed output instead of showing the user
+                # nothing at all.
+                outputs.append((False, str(e)))
 
         output_thread = threading.Thread(target=read_output, args=(process, outputs))
         output_thread.start()

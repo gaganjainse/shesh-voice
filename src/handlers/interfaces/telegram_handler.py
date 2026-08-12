@@ -308,6 +308,7 @@ class TelegramInterface(ChatInterface):
                         try:
                             os.unlink(path)
                         except OSError:
+                            # Best-effort temp-file cleanup; the request's real error was already reported above.
                             pass
 
         async def handle_photo_message(update: Update, context):
@@ -336,6 +337,7 @@ class TelegramInterface(ChatInterface):
                     try:
                         os.unlink(img_path)
                     except OSError:
+                        # Best-effort temp-file cleanup; the request's real error was already reported above.
                         pass
 
         async def handle_callback_query(update: Update, context):
@@ -444,6 +446,9 @@ class TelegramInterface(ChatInterface):
                                     await _safe_send_message(context.bot, tg_chat_id, final)
                                 last_sent = accumulated
                             except Exception:
+                                # Transient Telegram send/edit failure:
+                                # last_sent was NOT advanced, so the next
+                                # chunk re-sends the accumulated text.
                                 pass
                         sent_message = None
                         last_sent = ""
@@ -475,6 +480,8 @@ class TelegramInterface(ChatInterface):
                             )
                         last_sent = accumulated
                     except Exception:
+                        # Transient draft-send failure; last_sent stays put
+                        # and the next update re-sends the accumulated text.
                         pass
 
             llm_thread.join(timeout=5)
@@ -575,6 +582,8 @@ class TelegramInterface(ChatInterface):
                         self._loop.run_until_complete(self._application.stop())
                         self._loop.run_until_complete(self._application.shutdown())
                     except Exception:
+                        # Best-effort shutdown: teardown must finish even if
+                        # the updater was stopped abnormally.
                         pass
                     self._loop.close()
                     self._loop = None
@@ -599,8 +608,12 @@ class TelegramInterface(ChatInterface):
                         try:
                             asyncio.run_coroutine_threadsafe(coro, self._loop).result(timeout=5)
                         except Exception:
+                            # One shutdown coroutine stalling must not block
+                            # the rest of the teardown sequence.
                             pass
             except Exception:
+                # Application object was partially constructed; there is
+                # nothing coherent left to shut down anyway.
                 pass
             self._application = None
         self._thread = None

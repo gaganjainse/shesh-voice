@@ -862,6 +862,7 @@ class ChatHistory(Gtk.Box):
                     size=size,
                 )
             except Exception:
+                # Avatar image unreadable — the initials fallback below renders.
                 pass
         return Adw.Avatar(text=name, show_initials=True, size=size)
 
@@ -1328,6 +1329,8 @@ class ChatHistory(Gtk.Box):
             self.chat_list_block.remove(box.get_ancestor(Gtk.ListBoxRow))
             self.messages_box.remove(box)
         except Exception:
+            # Row was already detached from one parent; the controller's
+            # chat-state save below is authoritative anyway.
             pass
         self.controller.save_chats()
         self.show_chat()

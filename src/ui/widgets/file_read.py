@@ -189,6 +189,8 @@ class ReadFileWidget(Gtk.Box):
             if language:
                 return language
         except GLib.Error:
+            # Content-type query failed; no language guess — the caller falls
+            # back to generic highlighting.
             pass
         
         # Fallback to extension matching

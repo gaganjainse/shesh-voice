@@ -77,6 +77,7 @@ def _save_credentials(config_dir: str, credentials: dict[str, Any]) -> None:
             try:
                 os.unlink(temporary_path)
             except FileNotFoundError:
+                # os.replace() already consumed the temp path — success path.
                 pass
 
 
@@ -221,7 +222,9 @@ def discover_auth(mcp_url: str) -> tuple[dict | None, str | None]:
                 if e.code == 401:
                     www_auth = e.headers.get("WWW-Authenticate", "")
                     break
-            except Exception:
+            except (urllib.error.URLError, OSError):
+                # Unreachable/misconfigured auth endpoint: no WWW-Authenticate
+                # discovered, params fall back to defaults below.
                 pass
     params = _parse_www_authenticate(www_auth)
     resource_metadata_url = params.get("resource_metadata")

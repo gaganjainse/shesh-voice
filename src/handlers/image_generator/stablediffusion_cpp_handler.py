@@ -317,7 +317,9 @@ class StableDiffusionCPPHandler(ImageGeneratorHandler):
             if not os.path.exists(folder):
                 try:
                     os.makedirs(folder)
-                except Exception:
+                except OSError:
+                    # Exists race or denied perms; subsequent writes to the
+                    # folder will surface a real, actionable error.
                     pass
 
     def get_extra_settings(self) -> list:
@@ -812,7 +814,9 @@ class StableDiffusionCPPHandler(ImageGeneratorHandler):
                     continue
                 try:
                     paths.add(os.path.abspath(path))
-                except Exception:
+                except (TypeError, ValueError):
+                    # Exotic non-str entry in the manifest — skip that entry,
+                    # keep the resolvable ones.
                     pass
         return paths
 
@@ -874,17 +878,21 @@ class StableDiffusionCPPHandler(ImageGeneratorHandler):
                 try:
                     self.set_setting(key, value)
                 except Exception:
+                    # Settings store hiccup mid model-sync; the key gets
+                    # re-synced on the next model selection.
                     pass
         elif previous_was_variant:
             for key in special_settings:
                 try:
                     self.set_setting(key, "")
                 except Exception:
+                    # Settings store hiccup while clearing variant keys.
                     pass
 
         try:
             self.set_setting("_last_synced_model", current_model)
         except Exception:
+            # Bookmark write failed; worst case the sync runs again next time.
             pass
 
     def _sync_edit_settings_with_model(self):
@@ -937,6 +945,7 @@ class StableDiffusionCPPHandler(ImageGeneratorHandler):
                 try:
                     self.set_setting(key, value)
                 except Exception:
+                    # Settings store hiccup mid edit-variant sync.
                     pass
             try:
                 self.set_setting(
@@ -944,21 +953,25 @@ class StableDiffusionCPPHandler(ImageGeneratorHandler):
                     "--qwen-image-zero-cond-t" in cli_extra,
                 )
             except Exception:
+                # Flag not persisted; defaults to off until next sync.
                 pass
         elif previous_was_variant:
             for key in edit_settings:
                 try:
                     self.set_setting(key, "")
                 except Exception:
+                    # Settings store hiccup while clearing edit-variant keys.
                     pass
             try:
                 self.set_setting("edit_qwen_image_zero_cond_t", False)
             except Exception:
+                # Settings store hiccup; flag may stay stale until next sync.
                 pass
 
         try:
             self.set_setting("_last_synced_edit_model", current_model)
         except Exception:
+            # Bookmark write failed; worst case the sync runs again next time.
             pass
 
 
@@ -1271,7 +1284,9 @@ class StableDiffusionCPPHandler(ImageGeneratorHandler):
             if os.path.exists(tmp_path):
                 try:
                     os.remove(tmp_path)
-                except Exception:
+                except OSError:
+                    # Temp already gone or locked; the download error is
+                    # re-raised right after — that is the actionable signal.
                     pass
             raise
 
@@ -1313,6 +1328,7 @@ class StableDiffusionCPPHandler(ImageGeneratorHandler):
                 if 16 < header_len < 1024 * 1024:
                     is_safetensors = True
             except Exception:
+                # Any sniffing failure simply means "not safetensors".
                 pass
         if not (is_gguf or is_safetensors):
             raise RuntimeError(
@@ -1325,6 +1341,7 @@ class StableDiffusionCPPHandler(ImageGeneratorHandler):
             try:
                 del self.downloading[model_id]
             except KeyError:
+                # A terminate/cleanup path already reaped the entry.
                 pass
             self.settings_update()
         return False
@@ -1353,8 +1370,11 @@ class StableDiffusionCPPHandler(ImageGeneratorHandler):
                             try:
                                 os.remove(abs_path)
                             except FileNotFoundError:
+                                # Already removed by an overlapping cleanup.
                                 pass
                 except ValueError:
+                    # commonpath() raises ValueError for cross-drive paths —
+                    # that IS the "not inside shared folder" verdict.
                     pass
 
         if os.path.exists(variant_dir):
@@ -2004,6 +2024,8 @@ class StableDiffusionCPPHandler(ImageGeneratorHandler):
             if root:
                 win.set_transient_for(root)
         except Exception:
+            # Button not attached to a window yet; dialog still works
+            # untransient (slightly worse UX only).
             pass
 
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)

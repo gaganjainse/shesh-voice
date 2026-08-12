@@ -357,7 +357,9 @@ class ToolRegistry:
                 if tools_settings and tool_name in tools_settings and tools_settings[tool_name].get("custom_prompt"):
                      try:
                          tool_def = json.loads(tools_settings[tool_name]["custom_prompt"])
-                     except:
+                     except (json.JSONDecodeError, TypeError):
+                         # custom_prompt is not JSON — the tool falls back to
+                         # its built-in definition (tool_def stays None).
                          pass
 
                 if not tool_def:
@@ -427,6 +429,8 @@ class ToolRegistry:
                         new_block = f"<tools>\n{json.dumps(tools, indent=2)}\n</tools>"
                         prompt = prompt[:start] + new_block + prompt[end:]
                 except json.JSONDecodeError:
+                    # The <tools> block is not well-formed JSON; leave this
+                    # prompt untouched rather than mangling it.
                     pass
             new_prompts.append(prompt)
         return new_prompts

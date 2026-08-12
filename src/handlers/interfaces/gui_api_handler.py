@@ -1207,7 +1207,8 @@ class GUIAPIInterface(Interface):
             finally:
                 try:
                     os.unlink(temp_file.name)
-                except Exception:
+                except OSError:
+                    # Best-effort temp-file cleanup; the request's real error was already reported above.
                     pass
 
         @app.post("/api/tts/stop")
@@ -1253,6 +1254,8 @@ class GUIAPIInterface(Interface):
                             break
                         q.put(data)
                 except Exception:
+                    # ffmpeg died mid-stream; the reader just ends. The rc is
+                    # checked by the caller, which reports the real error.
                     pass
                 finally:
                     q.put(done_sentinel)
@@ -1266,9 +1269,12 @@ class GUIAPIInterface(Interface):
                             return
                     try:
                         ffmpeg_process.stdin.close()
-                    except Exception:
+                    except OSError:
+                        # Pipe already closed after the BrokenPipeError above.
                         pass
                 except Exception:
+                    # Writer teardown raced with process exit; the caller
+                    # reports the process rc as the real error.
                     pass
 
             threading.Thread(target=reader, daemon=True).start()
@@ -1284,7 +1290,8 @@ class GUIAPIInterface(Interface):
                     yield item
                 try:
                     ffmpeg_process.terminate()
-                except Exception:
+                except (ProcessLookupError, OSError):
+                    # Already exited on its own.
                     pass
 
             return StreamingResponse(audio_generator(), media_type=content_type)
@@ -1311,7 +1318,8 @@ class GUIAPIInterface(Interface):
                 try:
                     temp_file.close()
                     os.unlink(temp_file.name)
-                except Exception:
+                except OSError:
+                    # Best-effort temp-file cleanup; the request's real error was already reported above.
                     pass
 
         # ============================================================ #

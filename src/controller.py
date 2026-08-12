@@ -369,6 +369,7 @@ class NewelleController:
                     try:
                         os.unlink(temporary_path)
                     except FileNotFoundError:
+                        # Temp file already renamed/removed on this error path.
                         pass
 
     def create_call_chat(self):

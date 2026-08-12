@@ -664,6 +664,8 @@ class CallPanel(Gtk.Box):
                 self.audio_stream.stop_stream()
                 self.audio_stream.close()
             except Exception:
+                # Device already released or never opened — we are tearing
+                # down, and audio_stream is cleared immediately after.
                 pass
             self.audio_stream = None
         
@@ -671,6 +673,7 @@ class CallPanel(Gtk.Box):
             try:
                 self.pyaudio_instance.terminate()
             except Exception:
+                # Backend already gone; the reference is cleared right after.
                 pass
             self.pyaudio_instance = None
         
@@ -800,6 +803,7 @@ class CallPanel(Gtk.Box):
                     self.audio_stream.stop_stream()
                     self.audio_stream.close()
                 except Exception:
+                    # Device already released; the caller nulled the ref.
                     pass
                 self.audio_stream = None
     
@@ -831,6 +835,8 @@ class CallPanel(Gtk.Box):
             self.wave_levels = new_levels
             GLib.idle_add(self._update_wave_bars)
         except Exception:
+            # A broken audio frame must not kill the visualizer; the bars
+            # simply skip this frame.
             pass
     
     def _update_wave_bars(self):

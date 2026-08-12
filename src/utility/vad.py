@@ -112,6 +112,8 @@ class VoiceActivityDetector:
             try:
                 return self._silero_vad(frame)
             except Exception:
+                # Silero inference failed on this frame — the webrtc fallback
+                # path below still produces a probability.
                 pass
         
         energy = self._calculate_energy(frame)

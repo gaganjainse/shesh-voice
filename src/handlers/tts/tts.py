@@ -173,11 +173,14 @@ class TTSHandler(Handler):
                         break
                     ffmpeg_process.stdin.write(chunk)
             except BrokenPipeError:
+                # ffmpeg/ffplay exited mid-stream (user stopped or device
+                # gone); teardown follows in the finally below.
                 pass
             finally:
                 try:
                     ffmpeg_process.stdin.close()
-                except Exception:
+                except OSError:
+                    # Pipe already closed by the BrokenPipeError above.
                     pass
 
         except Exception as e:
@@ -190,6 +193,7 @@ class TTSHandler(Handler):
                         proc.wait()
                         proc.terminate()
                     except Exception:
+                        # Process already exited; nothing left to terminate.
                         pass
             self.play_process = None
             self.on_stop()
@@ -233,7 +237,8 @@ class TTSHandler(Handler):
         finally:
             try:
                 os.remove(path)
-            except Exception:
+            except OSError:
+                # Temp audio already consumed/removed.
                 pass
 
     def destroy(self):

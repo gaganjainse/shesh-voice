@@ -74,7 +74,9 @@ class LlamaCPPEmbeddingHandler(EmbeddingHandler):
         if not os.path.exists(self.model_folder):
             try:
                 os.makedirs(self.model_folder)
-            except:
+            except OSError:
+                # Created by another thread meanwhile, or perms deny it;
+                # later file operations on the folder surface real errors.
                 pass
     
     def get_custom_models_dir(self) -> str:
@@ -287,7 +289,9 @@ class LlamaCPPEmbeddingHandler(EmbeddingHandler):
                         print(f"Could not verify embedding support: {e}")
                         # Continue anyway, will fail later if embeddings don't work
                         return True
-            except:
+            except Exception:
+                # Server still coming up: an early-boot response of unexpected
+                # shape must not kill the wait loop — keep polling.
                 pass
             time.sleep(0.5) 
         return False
@@ -441,7 +445,9 @@ class LlamaCPPEmbeddingHandler(EmbeddingHandler):
             root = button.get_root()
             if root:
                 win.set_transient_for(root)
-        except:
+        except Exception:
+            # Button not attached to a window yet; the dialog still works
+            # untransient (slightly worse UX only).
             pass
 
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -882,6 +888,8 @@ class LlamaCPPEmbeddingHandler(EmbeddingHandler):
                         "source": source_name,
                     })
             except Exception:
+                # One unreachable/malformed release source must not drop the
+                # others; the list below just shows fewer options.
                 pass
 
         try:

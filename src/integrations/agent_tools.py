@@ -203,6 +203,8 @@ class AgentToolsIntegration(NewelleExtension):
                 next_run_at = data.get("next_run_at")
                 folder_id = data.get("folder_id")
             except json.JSONDecodeError:
+                # Malformed schedule payload in the tool output — keep the
+                # run_at/cron values the caller passed in.
                 pass
 
         result = ToolResult()

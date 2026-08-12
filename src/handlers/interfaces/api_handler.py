@@ -531,7 +531,8 @@ class APIInterface(ChatInterface):
                 try:
                     temp_file.close()
                     os.unlink(temp_file.name)
-                except Exception:
+                except OSError:
+                    # Best-effort temp-file cleanup; the request's real error was already reported above.
                     pass
 
         @app.post("/v1/embeddings")
@@ -1016,7 +1017,8 @@ class APIInterface(ChatInterface):
             finally:
                 try:
                     os.unlink(temp_file.name)
-                except Exception:
+                except OSError:
+                    # Best-effort temp-file cleanup; the request's real error was already reported above.
                     pass
                 finally:
                     if voice:
@@ -1073,6 +1075,8 @@ class APIInterface(ChatInterface):
                         break
                     q.put(data)
             except Exception:
+                # ffmpeg died mid-stream; the reader just ends. The process
+                # rc is checked by the caller, which reports the real error.
                 pass
             finally:
                 q.put(done_sentinel)
@@ -1087,7 +1091,8 @@ class APIInterface(ChatInterface):
                         return
                 try:
                     ffmpeg_process.stdin.close()
-                except Exception:
+                except OSError:
+                    # Pipe already closed after the BrokenPipeError above.
                     pass
             except Exception as e:
                 print(f"Streaming TTS error: {e}")
@@ -1108,7 +1113,9 @@ class APIInterface(ChatInterface):
                 yield item
             try:
                 ffmpeg_process.terminate()
-            except Exception:
+            except (ProcessLookupError, OSError):
+                # ffmpeg already exited on its own — exactly what terminate
+                # was meant to achieve.
                 pass
             if voice:
                 tts.set_voice(original_voice)

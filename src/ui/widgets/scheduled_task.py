@@ -161,6 +161,7 @@ class ScheduledTaskWidget(Gtk.ListBox):
                 self._folder_id = new_folder_id
                 self._show_toast(_("Folder updated"))
         except (ValueError, TypeError):
+            # Dropdown emitted a non-id value (e.g. the placeholder row).
             pass
 
     def _show_toast(self, message: str):

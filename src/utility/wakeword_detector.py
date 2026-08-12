@@ -193,14 +193,16 @@ class WakewordDetector:
             try:
                 self.stream.stop_stream()
                 self.stream.close()
-            except:
+            except Exception:
+                # Device already released; the stream ref is cleared below.
                 pass
             self.stream = None
 
         if self.audio is not None:
             try:
                 self.audio.terminate()
-            except:
+            except Exception:
+                # Backend already terminated; the ref is cleared below.
                 pass
             self.audio = None
 

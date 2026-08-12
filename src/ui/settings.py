@@ -1464,6 +1464,8 @@ class Settings(Adw.Window):
                     main_path = self.settings.get_string("path")
                     rule_path = os.path.expanduser(main_path)
                 except Exception:
+                    # "path" setting unreadable right now; the rule keeps its
+                    # template and simply never matches below.
                     pass
             if rule_path == path:
                 toast = Adw.Toast(title=_("A rule for this directory already exists"))

@@ -227,11 +227,13 @@ class BackgroundProcess:
             try:
                 fileobj.close()
             except (ValueError, OSError):
+                # Pipe already closed by the process exiting.
                 pass
         for thread, _ in drainers:
             try:
                 thread.join(timeout=1.0)
             except (RuntimeError, OSError):
+                # Thread already gone or never started; teardown continues.
                 pass
 
     # Output access
@@ -258,10 +260,13 @@ class BackgroundProcess:
             try:
                 os.killpg(pgid, sig)
             except (ProcessLookupError, PermissionError, OSError):
+                # Group already dead (or not ours to signal); the direct
+                # send_signal attempt below covers the leftovers.
                 pass
         try:
             proc.send_signal(sig)
         except (ProcessLookupError, ValueError, OSError):
+            # Already exited — the signal's purpose is fulfilled.
             pass
 
     def _wait(self, proc: subprocess.Popen, timeout: float) -> bool:

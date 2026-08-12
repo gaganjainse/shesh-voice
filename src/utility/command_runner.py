@@ -131,6 +131,7 @@ class CommandRunner:
                         break
                     collector.append(chunk)
             except (OSError, ValueError):
+                # Pipe closed mid-read; the chunks collected so far are used.
                 pass
         finally:
             pipe.close()
@@ -146,12 +147,14 @@ class CommandRunner:
             try:
                 process.terminate()
             except OSError:
+                # Process group already gone; terminate is moot.
                 pass
 
         try:
             process.wait(timeout=2)
             return
         except subprocess.TimeoutExpired:
+            # Still alive after SIGTERM — the SIGKILL path below handles it.
             pass
 
         try:
@@ -163,10 +166,12 @@ class CommandRunner:
             try:
                 process.kill()
             except OSError:
+                # Already dead before SIGKILL landed.
                 pass
         try:
             process.wait(timeout=2)
         except subprocess.TimeoutExpired:
+            # Zombie/uninterruptible sleep; caller proceeds, OS will reap it.
             pass
 
     def run(self, command: str, working_dir: str, host_prefix: list[str] | None = None) -> CommandExecutionResult:

@@ -805,6 +805,8 @@ def _load_logo(url, callback):
             requests.RequestException,
             GLib.Error,
         ):
+            # Fetch/validation failure leaves pixbuf=None: the caller shows
+            # the generic catalog icon instead of a broken image.
             pass
         finally:
             GLib.idle_add(callback, pixbuf)

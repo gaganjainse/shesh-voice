@@ -39,7 +39,8 @@ class OpenRouterImageHandler(ImageGeneratorHandler):
         if cached is not None:
             try:
                 self.models = json.loads(cached)
-            except Exception:
+            except (json.JSONDecodeError, TypeError):
+                # Corrupt "models" setting — keep the built-in default list.
                 pass
         else:
             threading.Thread(target=self._fetch_models, daemon=True).start()

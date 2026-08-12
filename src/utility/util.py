@@ -226,6 +226,7 @@ def convert_messages_openai_to_newelle(messages: list) -> tuple[str, list[dict],
                     try:
                         tool_data["arguments"] = json.loads(tool_data["arguments"])
                     except json.JSONDecodeError:
+                        # arguments not JSON — the raw string form is kept.
                         pass
                 if isinstance(tc, dict):
                     raw_tc_id = tc.get("id")
@@ -660,6 +661,7 @@ def convert_history_newelle(openai_history: list, vision_support: bool = False):
                     try:
                         tool_data["arguments"] = json.loads(tool_data["arguments"])
                     except (json.JSONDecodeError, ValueError):
+                        # arguments not JSON — the raw string form is kept.
                         pass
                 tc_id = _coerce_explicit_id(tc.get("id"))
                 if tc_id is None:

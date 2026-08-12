@@ -448,7 +448,8 @@ class WhisperCPPHandler(STTHandler):
             root = button.get_root()
             if root:
                 win.set_transient_for(root)
-        except:
+        except Exception:
+            # Button not attached to a window yet; dialog works untransient.
             pass
 
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)

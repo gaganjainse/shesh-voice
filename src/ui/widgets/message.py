@@ -923,6 +923,8 @@ class Message(Gtk.Box):
                         image.set_from_pixbuf(loader.get_pixbuf())
                         box.append(image)
                     except Exception:
+                        # Undecodable inline image — that one line is skipped,
+                        # the rest of the message renders.
                         pass
             elif line.startswith(("https://", "http://")):
                 img = image
@@ -1304,8 +1306,12 @@ class Message(Gtk.Box):
                         response = result.get_output()
                         context_messages = result.get_context_messages()
                         if not restore:
-                            try: self._get_chat_tab().active_tool_results.remove(result)
-                            except: pass
+                            try:
+                                self._get_chat_tab().active_tool_results.remove(result)
+                            except (AttributeError, ValueError):
+                                # Tab closed or result already reaped — nothing
+                                # left to remove.
+                                pass
                         if result.is_cancelled:
                             if current_group() is not None:
                                 GLib.idle_add(self._set_tool_slot_state, slot, "cancelled")

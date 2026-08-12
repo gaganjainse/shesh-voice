@@ -317,6 +317,8 @@ class GeminiHandler(LLMHandler):
                                 )
                             )
                         except Exception:
+                            # One malformed function-call part is dropped;
+                            # the remaining parts are still delivered.
                             pass
                     if parts:
                         result.append(types.Content(role="model", parts=parts))

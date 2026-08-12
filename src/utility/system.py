@@ -154,6 +154,7 @@ def detect_cuda_version() -> float | None:
             if match:
                 return float(f"{match.group(1)}.{match.group(2)}")
     except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
+        # Probe tool absent or hung: version unknown -> feature unavailable.
         pass
 
     try:
@@ -169,6 +170,7 @@ def detect_cuda_version() -> float | None:
             if match:
                 return float(f"{match.group(1)}.{match.group(2)}")
     except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
+        # Probe tool absent or hung: version unknown -> feature unavailable.
         pass
 
     return None

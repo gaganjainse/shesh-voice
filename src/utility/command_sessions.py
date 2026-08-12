@@ -229,6 +229,7 @@ class CommandSession:
             try:
                 os.close(slave_fd)
             except OSError:
+                # fd already closed on the error path taken above.
                 pass
 
         self._master_fd = master_fd
@@ -284,6 +285,8 @@ class CommandSession:
             try:
                 listener(terminal_text)
             except Exception:
+                # Listener isolation: one bad consumer must not starve the
+                # others of terminal output.
                 pass
 
     def _reader_loop(self) -> None:
@@ -325,12 +328,14 @@ class CommandSession:
                 try:
                     os.close(master_fd)
                 except OSError:
+                    # fd already closed during process teardown.
                     pass
             self._master_fd = None
             if self._on_exit is not None:
                 try:
                     self._on_exit(self)
                 except Exception:
+                    # Exit-callback failure must not wedge session teardown.
                     pass
 
     def wait_for_output(self, after_offset: int, wait_ms: int) -> None:
@@ -483,6 +488,7 @@ class CommandSession:
                 try:
                     self.process.terminate()
                 except (ProcessLookupError, OSError):
+                    # Process already exited between killpg and here.
                     pass
             try:
                 self.process.wait(timeout=timeout)
@@ -493,10 +499,13 @@ class CommandSession:
                     try:
                         self.process.kill()
                     except (ProcessLookupError, OSError):
+                        # Already dead before SIGKILL landed.
                         pass
                 try:
                     self.process.wait(timeout=1)
                 except subprocess.TimeoutExpired:
+                    # Reap raced the kernel; the reader thread join below
+                    # bounds total teardown time regardless.
                     pass
         self._reader_thread.join(timeout=1)
         if self.is_running:
@@ -598,6 +607,7 @@ class CommandSessionManager:
             try:
                 session.terminate()
             except (CommandSessionError, OSError, subprocess.SubprocessError):
+                # One misbehaving session must not block the others' teardown.
                 pass
 
 

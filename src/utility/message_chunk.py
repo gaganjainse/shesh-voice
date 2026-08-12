@@ -341,6 +341,7 @@ def parse_potential_tool_json(text: str) -> Optional[dict]:
             if "name" in obj or "tool" in obj or "function" in obj:
                 return obj
     except json.JSONDecodeError:
+        # Not valid JSON means not a tool call — the None below says so.
         pass
     return None
 

@@ -1014,6 +1014,7 @@ class ChatTab(Gtk.Box):
             if hasattr(self.chat_history, "messages_box") and len(self.chat_history.messages_box) > 0:
                 self.chat_history.messages_box.pop()
         except (AttributeError, IndexError):
+            # messages_box missing/already emptied — streaming box replaces it.
             pass
         self.streaming_box.set_overflow(Gtk.Overflow.VISIBLE)
 
@@ -1146,6 +1147,8 @@ class ChatTab(Gtk.Box):
                         self.current_streaming_message.remove(self.reading)
                     self.reading = None
         except (AttributeError, TypeError, RuntimeError):
+            # "reading" indicator was already detached or destroyed; nothing
+            # left to clean.
             pass
             
     def add_prompt(self, prompt: str | None):
@@ -1395,6 +1398,8 @@ class ChatTab(Gtk.Box):
                     loader.close()
                     self.attached_image.set_from_pixbuf(loader.get_pixbuf())
                 except Exception:
+                    # Attachment bytes are not a decodable image; no preview
+                    # is shown but the file is still attached.
                     pass
             self.attached_image.set_visible(True)
 

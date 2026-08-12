@@ -140,5 +140,6 @@ class FolderRow(Gtk.ListBoxRow):
                 self._on_drop_callback(chat_id, self.folder_id)
                 return True
             except (ValueError, TypeError):
+                # Drop payload was not a chat id — this was not a folder drop.
                 pass
         return False

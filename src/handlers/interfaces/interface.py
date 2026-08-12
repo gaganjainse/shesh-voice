@@ -91,6 +91,7 @@ class Interface(Handler):
         try:
             os.remove(self._get_state_file())
         except FileNotFoundError:
+            # Interface stopped without ever starting — no state file existed.
             pass
 
     @staticmethod
@@ -98,6 +99,8 @@ class Interface(Handler):
         try:
             os.remove(state_file)
         except (FileNotFoundError, OSError):
+            # Already removed or tmp dir unwritable; a stale state file only
+            # makes a future reader see a dead interface, which it times out.
             pass
 
     @staticmethod

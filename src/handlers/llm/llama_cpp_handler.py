@@ -75,7 +75,8 @@ class LlamaCPPHandler(OpenAIHandler):
         if not os.path.exists(self.model_folder):
             try:
                 os.makedirs(self.model_folder)
-            except:
+            except OSError:
+                # Exists race or denied perms; later writes surface real errors.
                 pass
     
     def get_custom_models_dir(self) -> str:
@@ -332,7 +333,8 @@ class LlamaCPPHandler(OpenAIHandler):
             try:
                 if requests.get(url).status_code == 200:
                     return True
-            except:
+            except requests.exceptions.RequestException:
+                # Server not listening yet — that is precisely why we poll.
                 pass
             time.sleep(0.5) 
         return False
@@ -486,7 +488,8 @@ class LlamaCPPHandler(OpenAIHandler):
             root = button.get_root()
             if root:
                 win.set_transient_for(root)
-        except:
+        except Exception:
+            # Button not attached to a window yet; dialog works untransient.
             pass
 
         main_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -929,6 +932,8 @@ class LlamaCPPHandler(OpenAIHandler):
                         "source": source_name,
                     })
             except Exception:
+                # One unreachable/malformed release source must not drop the
+                # others; the list simply shows fewer options.
                 pass
 
         try:
