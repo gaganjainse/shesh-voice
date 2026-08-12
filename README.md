@@ -1,3 +1,26 @@
+# Shesh Voice — local-first voice/chat overlay (fork of Newelle)
+
+This is the Shesh ecosystem voice frontend: a fork of
+[Newelle](https://github.com/qwersyk/Newelle) (upstream credit and license
+retained) with the **Shesh overlay** in [`shesh-overlay/`](shesh-overlay/):
+
+- `branding.patch` — display/config identity (`DIR_NAME = "Shesh"`, appdata
+  and desktop entry) applied on top of the tracked upstream tree. The test
+  suite applies it in CI: if upstream renames the patched lines, CI fails and
+  the patch must be refreshed — no silent drift.
+- `default-settings.ini` — Shesh defaults (local-first providers).
+- `shesh-mcp-servers.json` — MCP servers the overlay wires in (shesh-* ids).
+
+## Tests
+
+    python -m pytest tests/ -q
+
+Static gates: overlay validity, patch applies, all 181 upstream Python files
+parse. The GTK app itself needs a display and is covered on-device.
+
+---
+## Upstream README (Newelle, kept for attribution)
+
 <h1 align="center">
   <img src="https://raw.githubusercontent.com/qwersyk/Newelle/master/data/icons/hicolor/scalable/apps/io.github.qwersyk.Newelle.svg" alt="Newelle" width="192" height="192"/>
   <br>

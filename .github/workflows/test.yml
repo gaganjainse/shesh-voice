@@ -1,0 +1,24 @@
+name: Tests
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  overlay:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install tools
+        run: pip install ruff pytest -q
+      - name: Lint overlay + tests (upstream src/ is not restyled — scoped gate)
+        run: ruff check shesh-overlay/ tests/
+      - name: Overlay + source-sanity tests
+        run: python -m pytest tests/ -q

@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "shesh-system":     { "command": "shesh-system-mcp",     "args": [] },
+    "shesh-shell":      { "command": "shesh-shell-mcp",      "args": [] },
+    "shesh-files":      { "command": "shesh-files-mcp",      "args": [] },
+    "shesh-skills":     { "command": "shesh-skills-mcp",     "args": [] },
+    "shesh-memory":     { "command": "shesh-memory-mcp",     "args": [] },
+    "shesh-mind":       { "command": "shesh-mind-mcp",       "args": [] },
+    "shesh-harness":    { "command": "shesh-harness-mcp",    "args": [] },
+    "shesh-orchestrator": { "command": "shesh-orchestrator-mcp", "args": [] },
+    "shesh-audit":      { "command": "shesh-audit-mcp",      "args": [] },
+    "shesh-backup":     { "command": "shesh-backup-mcp",     "args": [] }
+  }
+}

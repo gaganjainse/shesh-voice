@@ -1,0 +1,38 @@
+--- a/src/constants.py
++++ b/src/constants.py
+@@ -21,7 +21,7 @@
+ from .integrations.todo_list import TodoListIntegration
+ from .integrations.mermaid import MermaidIntegration
+ 
+-DIR_NAME = "Newelle"
++DIR_NAME = "Shesh"
+ SCHEMA_ID = 'io.github.qwersyk.Newelle'
+ 
+ AVAILABLE_INTEGRATIONS = [WebsiteReader, WebsearchIntegration, MermaidIntegration, MCPIntegration, SkillsIntegration, DefaultToolsIntegration, AgentToolsIntegration, FileEditingIntegration, TodoListIntegration]
+--- a/data/io.github.qwersyk.Newelle.appdata.xml.in
++++ b/data/io.github.qwersyk.Newelle.appdata.xml.in
+@@ -4,11 +4,11 @@
+ 	<metadata_license>CC0-1.0</metadata_license>
+ 	<project_license>GPL-3.0-or-later</project_license>
+         <launchable type="desktop-id">io.github.qwersyk.Newelle.desktop</launchable>
+-        <name>Newelle</name>
++        <name>Shesh</name>
+ 	<description>
+ 	  <p>Train Newelle to do more with custom extensions and new AI modules, giving your chatbot endless possibilities.</p>
+ 	</description>
+-	<summary>AI chatbot</summary>
++	<summary>Shesh voice assistant</summary>
+ 	<screenshots>
+ 		<screenshot type="default">
+ 			<image>https://raw.githubusercontent.com/qwersyk/Newelle/master/data/screenshots/1.png</image>
+--- a/data/io.github.qwersyk.Newelle.desktop.in
++++ b/data/io.github.qwersyk.Newelle.desktop.in
+@@ -1,6 +1,6 @@
+ [Desktop Entry]
+-Name=Newelle
+-Comment=Newelle: Your advanced chat bot
++Name=Shesh
++Comment=Shesh — your local-first voice assistant
+ Exec=newelle
+ Icon=io.github.qwersyk.Newelle
+ Terminal=false
