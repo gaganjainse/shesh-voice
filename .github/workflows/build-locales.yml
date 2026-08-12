@@ -3,6 +3,8 @@ name: Rebuild Locales
 on:
   workflow_dispatch:
 
+# Least privilege by default; jobs that write declare it explicitly.
+permissions: read-all
 jobs:
   run-script:
     runs-on: ubuntu-latest
