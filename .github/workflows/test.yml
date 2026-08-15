@@ -7,9 +7,13 @@ on:
 
 # Least privilege by default; jobs that write declare it explicitly.
 permissions: read-all
+concurrency:
+  group: test-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   overlay:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         python: ["3.11", "3.13"]

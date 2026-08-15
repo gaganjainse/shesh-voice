@@ -5,10 +5,14 @@ on:
 # Least privilege by default; jobs that write declare it explicitly.
 permissions: read-all
 name: Flatpak Build
+concurrency:
+  group: flatpak-builder-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   flatpak:
     name: "Flatpak"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-48
       options: --privileged
